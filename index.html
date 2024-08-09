@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>地震情報</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/linkalls/raku/raku.min.css">
+ 
 </head>
 <body class="bg-gray-900 text-white">
     <div class="container mx-auto p-4">
@@ -12,21 +14,54 @@
 
     </div>
 <script>
-    fetch("https://www.jma.go.jp/bosai/quake/data/list.json")
+
+const timeChange = (at) => {
+    const time = at 
+// ISO文字列をDateオブジェクトに変換
+const date = new Date(time);
+
+// 日本のタイムゾーン（JST, UTC+9）でフォーマット
+const options = {
+  timeZone: 'Asia/Tokyo',
+  year: 'numeric',
+  month: '2-digit',
+  day: '2-digit',
+  hour: '2-digit',
+  minute: '2-digit',
+  second: '2-digit',
+  hour12: false
+};
+
+// フォーマットされた日時文字列を取得
+const formattedDate = new Intl.DateTimeFormat('ja-JP', options).format(date);
+
+return formattedDate
+}
+
+
+ fetch("https://www.jma.go.jp/bosai/quake/data/list.json")
       .then((data) => data.json())
       .then(data => {
         data.forEach(data => {
-          const div = document.createElement("div");
+          const section = document.createElement("section");
           if(!data.anm){
-              div.innerHTML = `<p>震源地名をうまく取得できませんでした</p>`
-          document.body.append(div);
+              section.innerHTML = `<p>震源地名をうまく取得できませんでした</p>`
+          document.body.append(section);
           } else {
-          div.innerHTML = `<p>震源地名: <a href="https://www.google.com/maps/search/?api=1&query=${data.anm}" style="color: orange" class="underline">${data.anm}</a></p>`
-          document.body.append(div);
+          section.innerHTML = `<p>発生時刻: ${timeChange(data.at)}</p><p>震源地名: <a href="https://www.google.com/maps/search/?api=1&query=${data.anm}" style="color: orange" class="underline">${data.anm}</a></p>`
+          document.body.append(section );
 }
         });
       });
 </script>
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pulltorefreshjs/0.1.22/index.umd.min.js"></script>
+<script>
+    const ptr = PullToRefresh.init({
+  mainElement: 'body',
+  onRefresh() {
+    window.location.reload();
+  }
+});
+</script>
 </body>
 </html>
