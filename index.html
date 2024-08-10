@@ -39,6 +39,10 @@ return formattedDate
 }
 
 
+const fetchData = () => {
+    
+}
+
  fetch("https://www.jma.go.jp/bosai/quake/data/list.json")
       .then((data) => data.json())
       .then(data => {
@@ -59,7 +63,29 @@ return formattedDate
     const ptr = PullToRefresh.init({
   mainElement: 'body',
   onRefresh() {
-    window.location.reload();
+    fetch("https://www.jma.go.jp/bosai/quake/data/list.json")
+      .then((data) => data.json())
+      .then(data => {
+          const sections = document.querySelectorAll('section');
+
+// 各section要素に対して削除処理を実行
+sections.forEach(section => {
+    section.remove();
+});
+
+        data.forEach(data => {
+            // 全てのsection要素を取得
+
+          const section = document.createElement("section");
+          if(!data.anm){
+              section.innerHTML = `<p>震源地名をうまく取得できませんでした</p>`
+          document.body.append(section);
+          } else {
+          section.innerHTML = `<p>発生時刻: ${timeChange(data.at)}</p><p>震源地名: <a href="https://www.google.com/maps/search/?api=1&query=${data.anm}" style="color: orange" class="underline">${data.anm}</a></p>`
+          document.body.append(section );
+}
+        });
+      });
   }
 });
 </script>
